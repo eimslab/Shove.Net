@@ -381,7 +381,7 @@ namespace Shove
             public static string ToTraditional(string str)
             {
                 System.Globalization.CultureInfo cl = new System.Globalization.CultureInfo("zh-CN", false);
-                return Microsoft.VisualBasic.Strings.StrConv(str, Microsoft.VisualBasic.VbStrConv.TraditionalChinese, cl.LCID);
+                return "";// Microsoft.VisualBasic.Strings.StrConv(str, Microsoft.VisualBasic.VbStrConv.TraditionalChinese, cl.LCID);
             }
 
             /// <summary>
@@ -392,7 +392,7 @@ namespace Shove
             public static string ToSimplified(string str)
             {
                 System.Globalization.CultureInfo cl = new System.Globalization.CultureInfo("zh-CN", false);
-                return Microsoft.VisualBasic.Strings.StrConv(str, Microsoft.VisualBasic.VbStrConv.SimplifiedChinese, cl.LCID);
+                return "";// Microsoft.VisualBasic.Strings.StrConv(str, Microsoft.VisualBasic.VbStrConv.SimplifiedChinese, cl.LCID);
             }
 
             /// <summary>

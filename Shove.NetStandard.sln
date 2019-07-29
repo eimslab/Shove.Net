@@ -1,13 +1,13 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shove.NetStandard", "Shove.NetStandard\Shove.NetStandard.csproj", "{778F6425-67C8-444F-8A54-C6AFEC8042B3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A5FBEF6E-9922-4132-B1CE-AB38A95A22E9}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shove", "Shove\Shove.csproj", "{670165E5-08FF-4CF9-8D3B-D302F87F4E12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +15,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{778F6425-67C8-444F-8A54-C6AFEC8042B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{778F6425-67C8-444F-8A54-C6AFEC8042B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{778F6425-67C8-444F-8A54-C6AFEC8042B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{778F6425-67C8-444F-8A54-C6AFEC8042B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{670165E5-08FF-4CF9-8D3B-D302F87F4E12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{670165E5-08FF-4CF9-8D3B-D302F87F4E12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{670165E5-08FF-4CF9-8D3B-D302F87F4E12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{670165E5-08FF-4CF9-8D3B-D302F87F4E12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
