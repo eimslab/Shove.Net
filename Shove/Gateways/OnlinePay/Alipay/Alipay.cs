@@ -949,7 +949,7 @@ namespace Shove.Alipay
 
             for (int i = 0; i < InitialOristr.Length; i++)
             {
-                parameter.Append(InitialOristr[i].Split(delimiterChars)[0] + "=" + HttpUtility.UrlEncode(InitialOristr[i].Split(delimiterChars)[1]) + "&");
+                parameter.Append(InitialOristr[i].Split(delimiterChars)[0] + "=" + WebUtility.UrlEncode(InitialOristr[i].Split(delimiterChars)[1]) + "&");
                 //parameter.Append(Sortedstr[i].Split(delimiterChars)[0] + "=" + Sortedstr[i].Split(delimiterChars)[1] + "&");
             }
 
@@ -1038,7 +1038,7 @@ namespace Shove.Alipay
 
             for (int i = 0; i < InitialOristr.Length; i++)
             {
-                parameter.Append(InitialOristr[i].Split(delimiterChars)[0] + "=" + HttpUtility.UrlEncode(InitialOristr[i].Split(delimiterChars)[1]) + "&");
+                parameter.Append(InitialOristr[i].Split(delimiterChars)[0] + "=" + WebUtility.UrlEncode(InitialOristr[i].Split(delimiterChars)[1]) + "&");
                 //parameter.Append(Sortedstr[i].Split(delimiterChars)[0] + "=" + Sortedstr[i].Split(delimiterChars)[1] + "&");
             }
 
@@ -1120,7 +1120,7 @@ namespace Shove.Alipay
             parameter.Append(gateway);
             for (i = 0; i < Sortedstr.Length; i++)
             {
-                parameter.Append(Sortedstr[i].Split(delimiterChars)[0] + "=" + HttpUtility.UrlEncode(Sortedstr[i].Split(delimiterChars)[1]) + "&");
+                parameter.Append(Sortedstr[i].Split(delimiterChars)[0] + "=" + WebUtility.UrlEncode(Sortedstr[i].Split(delimiterChars)[1]) + "&");
             }
 
             parameter.Append("sign=" + sign + "&sign_type=" + sign_type);

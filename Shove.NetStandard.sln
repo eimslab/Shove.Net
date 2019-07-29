@@ -20,4 +20,7 @@ Global
 		{670165E5-08FF-4CF9-8D3B-D302F87F4E12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{670165E5-08FF-4CF9-8D3B-D302F87F4E12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 0.1.1
+	EndGlobalSection
 EndGlobal

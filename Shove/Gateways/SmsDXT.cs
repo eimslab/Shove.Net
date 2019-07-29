@@ -507,7 +507,7 @@ namespace Shove.Gateways
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             string sign = Shove.Security.Encrypt.MD5(string.Format("apiAccount={0}&body={1}&timestamp={2}&apikey={3}", account, body, timestamp, key));
 
-            return string.Format("{0}?apiAccount={1}&body={2}&timestamp={3}&sign={4}", gatewayUrl, account, HttpUtility.UrlEncode(body), HttpUtility.UrlEncode(timestamp), sign);
+            return string.Format("{0}?apiAccount={1}&body={2}&timestamp={3}&sign={4}", gatewayUrl, account, WebUtility.UrlEncode(body), WebUtility.UrlEncode(timestamp), sign);
         }
 
         private static string httpRequest(string url, ref string errorDescription)
@@ -567,9 +567,9 @@ namespace Shove.Gateways
             try
             {
                 res_code = json["code"].ToString();
-                res_message = HttpUtility.UrlDecode(json["message"].ToString());
-                res_timestamp = HttpUtility.UrlDecode(json["timestamp"].ToString());
-                res_body = HttpUtility.UrlDecode(json["body"].ToString());
+                res_message = WebUtility.UrlDecode(json["message"].ToString());
+                res_timestamp = WebUtility.UrlDecode(json["timestamp"].ToString());
+                res_body = WebUtility.UrlDecode(json["body"].ToString());
                 res_sign = json["sign"].ToString();
             }
             catch (Exception e)

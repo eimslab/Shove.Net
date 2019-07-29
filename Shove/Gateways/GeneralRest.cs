@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Web;
+using System.Net;
 using Microsoft.AspNetCore.Http;
 
 namespace Shove.Gateways
@@ -82,10 +82,10 @@ namespace Shove.Gateways
                 }
                 else if (keys[i] == "_t")
                 {
-                    _t = HttpUtility.UrlDecode(req.Query["_t"], Encoding.UTF8);
+                    _t = WebUtility.UrlDecode(req.Query["_t"]);//, Encoding.UTF8);
                 }
 
-                parameters.Add(keys[i], HttpUtility.UrlDecode(req.Query[keys[i]], Encoding.UTF8));
+                parameters.Add(keys[i], WebUtility.UrlDecode(req.Query[keys[i]]));//, Encoding.UTF8));
             }
 
             if (string.IsNullOrEmpty(_s) || string.IsNullOrEmpty(_t))
@@ -191,7 +191,7 @@ namespace Shove.Gateways
             for (int i = 0; i < parameters.Count; i++)
             {
                 signData += (ParameterNames[i] + "=" + parameters[ParameterNames[i]].ToString());
-                urlBase += (ParameterNames[i] + "=" + HttpUtility.UrlEncode(parameters[ParameterNames[i]].ToString(), Encoding.UTF8));
+                urlBase += (ParameterNames[i] + "=" + WebUtility.UrlEncode(parameters[ParameterNames[i]].ToString()));//, Encoding.UTF8));
 
                 if (i < parameters.Count - 1)
                 {

@@ -79,7 +79,7 @@ namespace Shove.Web
                 return "";
             }
 
-            Result = HttpUtility.UrlDecode(Result).Trim();
+            Result = WebUtility.UrlDecode(Result).Trim();
 
             if (true)//[shove] Shove.Web.Security.InjectionInterceptor.__SYS_SHOVE_FLAG_IsUsed_InjectionInterceptor)
             {
@@ -199,7 +199,7 @@ namespace Shove.Web
                     url += "&";
                 }
 
-                signatureSource += sortedParamters[i].Split('=')[0] + HttpUtility.UrlDecode(sortedParamters[i].Split('=')[1]);
+                signatureSource += sortedParamters[i].Split('=')[0] + WebUtility.UrlDecode(sortedParamters[i].Split('=')[1]);
                 url += sortedParamters[i].Split('=')[0] + "=" + sortedParamters[i].Split('=')[1];
             }
 
@@ -257,7 +257,7 @@ namespace Shove.Web
                 string Value = Shove.Web.Utility.GetRequest(context, str);
 
                 SignSourceString += (str + Value);
-                Result[i++] = str + "=" + HttpUtility.UrlEncode(Value);
+                Result[i++] = str + "=" + WebUtility.UrlEncode(Value);
             }
 
             if (string.Compare(Shove.Security.Encrypt.MD5(SignSourceString), sign, StringComparison.OrdinalIgnoreCase) != 0)

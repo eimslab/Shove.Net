@@ -1,9 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net4.6.1;net4.6.2</TargetFrameworks>
+    <PackOnBuild>true</PackOnBuild>
+    <PackageVersion>0.1.1</PackageVersion>
+    <Authors>EimsLab</Authors>
+    <PackageId>Shove.Net</PackageId>
+    <Description>A DotNet Standard extension library is designed to simplify the repetitive, mechanical little work of daily application development.</Description>
+    <ReleaseVersion>0.1.1</ReleaseVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType></DebugType>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Class1.cs" />
   </ItemGroup>

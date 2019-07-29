@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Web;
 using System.Net;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
 using LitJson;
 using System.Text;
@@ -334,7 +332,7 @@ namespace Shove.Gateways.Weixin.Gongzhong
                 return false;
             }
 
-            Uri downUri = new Uri(string.Format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket={0}", System.Web.HttpUtility.UrlEncode(ticket, System.Text.Encoding.UTF8)));
+            Uri downUri = new Uri(string.Format("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket={0}", WebUtility.UrlEncode(ticket)));//, System.Text.Encoding.UTF8)));
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(downUri);
             request.Method = "get";
 
