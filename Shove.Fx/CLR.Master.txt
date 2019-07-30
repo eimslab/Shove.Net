@@ -1,0 +1,921 @@
+// Program Name: Shove.DAL.30.CLR
+// Program Version: 3.0
+// Writer By: 3km.shovesoft.shove (zhou changjun)
+// Release Time: 2008.9.9
+//
+// All Rights saved.
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Data;
+using System.Data.SqlClient;
+using System.Collections;
+using Microsoft.SqlServer.Server;
+
+namespace Shove.CLR
+{
+    /// <summary>
+    /// Shove 的专用的 MS SQLServer 访问组件类
+    /// </summary>
+    public class MSSQL
+    {
+        #region Parameter
+
+        /// <summary>
+        /// 参数
+        /// </summary>
+        public class Parameter
+        {
+            public string Name;
+            public SqlDbType Type;
+            public int Size;
+            public ParameterDirection Direction;
+            public object Value;
+
+            public Parameter(string name, SqlDbType type, int size, ParameterDirection direction, object value)
+            {
+                Name = name;
+                Type = type;
+                Size = size;
+                Direction = direction;
+                Value = value;
+            }
+        }
+
+        /// <summary>
+        /// 输入参数
+        /// </summary>
+        public class OutputParameter
+        {
+            public ArrayList ParametersName;
+            public ArrayList ParametersValue;
+
+            public OutputParameter()
+            {
+                ParametersName = new ArrayList();
+                ParametersValue = new ArrayList();
+            }
+
+            public void Add(string Name, object Value)
+            {
+                ParametersName.Add(Name.StartsWith("@") ? Name.Substring(1, Name.Length - 1) : Name);
+                ParametersValue.Add(Value);
+            }
+
+            public void Clear()
+            {
+                ParametersName.Clear();
+                ParametersValue.Clear();
+            }
+
+            public int Count
+            {
+                get
+                {
+                    if (ParametersName == null)
+                    {
+                        return 0;
+                    }
+
+                    return ParametersName.Count;
+                }
+            }
+
+            public object this[int Index]
+            {
+                get
+                {
+                    if (ParametersValue == null)
+                    {
+                        return null;
+                    }
+
+                    if (ParametersValue.Count == 0)
+                    {
+                        return null;
+                    }
+
+                    return ParametersValue[Index];
+                }
+            }
+
+            public object this[string Name]
+            {
+                get
+                {
+                    if (ParametersValue == null)
+                    {
+                        return null;
+                    }
+
+                    for (int i = 0; i < ParametersName.Count; i++)
+                    {
+                        if (ParametersName[i].ToString() == Name)
+                        {
+                            return ParametersValue[i];
+                        }
+                    }
+
+                    return null;
+                }
+            }
+        }
+
+        private static void AddParameter(ref SqlCommand Cmd, params Parameter[] Params)
+        {
+            if ((Params == null) || (Cmd == null))
+            {
+                return;
+            }
+
+            for (int i = 0; i < Params.Length; i++)
+            {
+                if (Params[i] == null)
+                {
+                    continue;
+                }
+
+                SqlParameter param = new SqlParameter();
+                param.ParameterName = Params[i].Name.StartsWith("@") ? Params[i].Name : ("@" + Params[i].Name);
+                param.SqlDbType = Params[i].Type;
+
+                if (Params[i].Size > 0)
+                {
+                    param.Size = Params[i].Size;
+                }
+
+                param.Direction = Params[i].Direction;
+
+                if (((Params[i].Direction == ParameterDirection.InputOutput) ||
+                    (Params[i].Direction == ParameterDirection.Input)) &&
+                    (Params[i].Value != null))
+                {
+                    param.Value = Params[i].Value;
+                }
+
+                Cmd.Parameters.Add(param);
+            }
+        }
+
+        private static void AddOutputParameter(SqlCommand Cmd, ref OutputParameter Outputs)
+        {
+            if (Cmd == null)
+            {
+                return;
+            }
+
+            if (Cmd.Parameters.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < Cmd.Parameters.Count; i++)
+            {
+                SqlParameter param = Cmd.Parameters[i];
+
+                if ((param.Direction != ParameterDirection.InputOutput) &&
+                    (param.Direction != ParameterDirection.Output))
+                {
+                    continue;
+                }
+
+                Outputs.Add(param.ParameterName, param.Value);
+            }
+        }
+
+        private static SqlParameter GetReturnParameter(SqlCommand Cmd)
+        {
+            if (Cmd == null)
+            {
+                return null;
+            }
+
+            if (Cmd.Parameters.Count == 0)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < Cmd.Parameters.Count; i++)
+            {
+                SqlParameter param = Cmd.Parameters[i];
+
+                if (param.Direction == ParameterDirection.ReturnValue)
+                {
+                    return param;
+                }
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// 执行数据库命令
+        /// </summary>
+        /// <param name="CommandText"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        public static int ExecuteNonQuery(string CommandText, params Parameter[] Params)
+        {
+            SqlConnection conn = new SqlConnection("context connection=true");
+            conn.Open();
+
+            SqlCommand Cmd = new SqlCommand(CommandText, conn);
+            AddParameter(ref Cmd, Params);
+
+            int Result = 0;
+
+            try
+            {
+                Cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+                Result = -1001;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            return Result;
+        }
+
+        /// <summary>
+        /// 打开数据集
+        /// </summary>
+        /// <param name="CommandText"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        public static DataTable Open(string CommandText, params Parameter[] Params)
+        {
+            SqlConnection conn = new SqlConnection("context connection=true");
+            conn.Open();
+
+            SqlDataAdapter da = new SqlDataAdapter("", conn);
+            SqlCommand Cmd = new SqlCommand(CommandText, conn);
+
+            AddParameter(ref Cmd, Params);
+            da.SelectCommand = Cmd;
+
+            DataTable dt = new DataTable();
+
+            try
+            {
+                da.Fill(dt);
+            }
+            catch
+            {
+                dt = null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            return dt;
+        }
+
+        /// <summary>
+        /// 读取记录集，并选择是否将此记录集发送到调用者
+        /// </summary>
+        /// <param name="CommandText"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        public static SqlDataReader Read(string CommandText, bool AndSend, params Parameter[] Params)
+        {
+            SqlConnection conn = new SqlConnection("context connection=true");
+            conn.Open();
+
+            SqlCommand Cmd = new SqlCommand(CommandText, conn);
+            AddParameter(ref Cmd, Params);
+
+            SqlDataReader Result = null;
+
+            try
+            {
+                Result = Cmd.ExecuteReader();
+
+                if (AndSend && (Result != null))
+                {
+                    SqlContext.Pipe.Send(Result);
+                }
+            }
+            catch { }
+            finally
+            {
+                conn.Close();
+            }
+
+            return Result;
+        }
+
+        /// <summary>
+        /// 读取第一行第一列
+        /// </summary>
+        /// <param name="CommandText"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        public static object ExecuteScalar(string CommandText, params Parameter[] Params)
+        {
+            SqlConnection conn = new SqlConnection("context connection=true");
+            conn.Open();
+
+            SqlCommand Cmd = new SqlCommand(CommandText, conn);
+            AddParameter(ref Cmd, Params);
+
+            object Result = null;
+
+            try
+            {
+                Result = Cmd.ExecuteScalar();
+            }
+            catch { }
+            finally
+            {
+                conn.Close();
+            }
+
+            return Result;
+        }
+
+        /// <summary>
+        /// 执行函数
+        /// </summary>
+        /// <param name="FunctionName"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        public static object ExecuteFunction(string FunctionName, params Parameter[] Params)
+        {
+            string CommandText = "select " + FunctionName + "(";
+
+            if (Params != null)
+            {
+                for (int i = 0; i < Params.Length; i++)
+                {
+                    if (Params[i] != null)
+                    {
+                        bool isChar = false;
+                        bool isNChar = false;
+
+                        if ((Params[i].Type == SqlDbType.Char) || (Params[i].Type == SqlDbType.DateTime) || (Params[i].Type == SqlDbType.SmallDateTime) ||
+                            (Params[i].Type == SqlDbType.Text) || (Params[i].Type == SqlDbType.UniqueIdentifier) || (Params[i].Type == SqlDbType.VarChar))
+                        {
+                            isChar = true;
+                        }
+
+                        if ((Params[i].Type == SqlDbType.NChar) || (Params[i].Type == SqlDbType.NText) || (Params[i].Type == SqlDbType.NVarChar))
+                        {
+                            isNChar = true;
+                        }
+
+                        if (!CommandText.EndsWith("("))
+                        {
+                            CommandText += ", ";
+                        }
+
+                        if (isChar)
+                        {
+                            CommandText += "\'";
+                        }
+
+                        if (isNChar)
+                        {
+                            CommandText += "N\'";
+                        }
+
+                        CommandText += Params[i].Value.ToString();
+
+                        if (isChar || isNChar)
+                        {
+                            CommandText += "\'";
+                        }
+                    }
+                }
+
+                CommandText += ")";
+            }
+
+            return ExecuteScalar(CommandText);
+        }
+
+        /// <summary>
+        /// 执行存储过程(无返回结果集)
+        /// </summary>
+        /// <param name="StoredProcedureName"></param>
+        /// <param name="Outputs"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        public static int ExecuteStoredProcedureNonQuery(string StoredProcedureName, ref OutputParameter Outputs, params Parameter[] Params)
+        {
+            SqlConnection conn = new SqlConnection("context connection=true");
+            conn.Open();
+
+            SqlCommand Cmd = new SqlCommand(StoredProcedureName, conn);
+            Cmd.CommandType = CommandType.StoredProcedure;
+
+            AddParameter(ref Cmd, Params);
+
+            // 增加返回值参数
+            SqlParameter ReturnValue = new SqlParameter("@Shove_Database_MSSQL_ExecuteStoredProcedureNonQuery_Rtn", SqlDbType.Int);
+            ReturnValue.Direction = ParameterDirection.ReturnValue;
+            Cmd.Parameters.Add(ReturnValue);
+
+            int Result = 0;
+
+            try
+            {
+                Cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+                Result = -1001;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            if (Result < 0)
+            {
+                return Result;
+            }
+
+            // 填写返回参数
+            AddOutputParameter(Cmd, ref Outputs);
+
+            // 获取过程的返回值
+            ReturnValue = GetReturnParameter(Cmd);
+
+            if (ReturnValue != null)
+            {
+                return (int)ReturnValue.Value;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 执行存储过程(带返回记录集)
+        /// </summary>
+        /// <param name="StoredProcedureName"></param>
+        /// <param name="ds"></param>
+        /// <param name="Outputs"></param>
+        /// <param name="Params"></param>
+        /// <returns></returns>
+        public static int ExecuteStoredProcedureWithQuery(string StoredProcedureName, ref DataSet ds, ref OutputParameter Outputs, params Parameter[] Params)
+        {
+            SqlConnection conn = new SqlConnection("context connection=true");
+            conn.Open();
+
+            SqlDataAdapter da = new SqlDataAdapter("", conn);
+            SqlCommand Cmd = new SqlCommand(StoredProcedureName, conn);
+
+            Cmd.CommandType = CommandType.StoredProcedure;
+            Cmd.Parameters.Clear();
+            AddParameter(ref Cmd, Params);
+
+            // 增加返回值参数
+            SqlParameter ReturnValue = new SqlParameter("@Shove_Database_MSSQL_ExecuteStoredProcedureWithQuery_Rtn", SqlDbType.Int);
+            ReturnValue.Direction = ParameterDirection.ReturnValue;
+            Cmd.Parameters.Add(ReturnValue);
+
+            if (ds == null)
+            {
+                ds = new DataSet();
+            }
+
+            da.SelectCommand = Cmd;
+
+            int Result = 0;
+
+            try
+            {
+                da.Fill(ds);
+            }
+            catch
+            {
+                Result = -1001;
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            if (Result < 0)
+            {
+                return Result;
+            }
+
+            //填写返回参数
+            AddOutputParameter(Cmd, ref Outputs);
+
+            // 获取过程的返回值
+            ReturnValue = GetReturnParameter(Cmd);
+
+            if (ReturnValue != null)
+            {
+                return (int)ReturnValue.Value;
+            }
+
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// DAL 通过一下四个类生成表、视图的访问的持久化代码
+    /// </summary>
+    public class Utility
+    {
+        /// <summary>
+        /// 表的字段类
+        /// </summary>
+        public class Field
+        {
+            private object _Value;
+
+            public object Parent;
+            public string Name;
+            public string CanonicalIdentifierName;
+            public SqlDbType DbType;
+            public bool ReadOnly;
+            public object Value
+            {
+                get
+                {
+                    return _Value;
+                }
+                set
+                {
+                    if (ReadOnly)
+                    {
+                        throw new Exception("the member “" + Name + "” is ReadOnly.");
+                    }
+
+                    _Value = value;
+
+                    if (Parent != null)
+                    {
+                        ((TableBase)Parent).Fields.Add(this);
+                    }
+                }
+            }
+
+            public Field(object parent, string name, string canonicalidentifiername, SqlDbType dbtype, bool _readonly)
+            {
+                Parent = parent;
+                Name = name;
+                CanonicalIdentifierName = canonicalidentifiername;
+                DbType = dbtype;
+                ReadOnly = _readonly;
+            }
+        }
+
+        /// <summary>
+        /// 表的修改的字段集合
+        /// </summary>
+        public class FieldCollection
+        {
+            private ArrayList al = new ArrayList();
+
+            public int Count
+            {
+                get
+                {
+                    return al.Count;
+                }
+            }
+
+            public void Add(object obj)
+            {
+                al.Add(obj);
+            }
+
+            public void Clear()
+            {
+                al.Clear();
+            }
+
+            public Field this[int Index]
+            {
+                get
+                {
+                    if ((Count < 1) || (Index < 0) || (Index > Count))
+                    {
+                        return null;
+                    }
+
+                    return (Field)al[Index];
+                }
+            }
+        }
+
+        /// <summary>
+        /// 表的基类
+        /// </summary>
+        public class TableBase
+        {
+            public string TableName = "";
+            public FieldCollection Fields = new FieldCollection();
+
+            /// <summary>
+            /// 打开表
+            /// </summary>
+            /// <param name="FieldList"></param>
+            /// <param name="Condition"></param>
+            /// <param name="Order"></param>
+            /// <returns></returns>
+            public DataTable Open(string FieldList, string Condition, string Order)
+            {
+                FieldList = FieldList.Trim();
+                Condition = Condition.Trim();
+                Order = Order.Trim();
+
+                return MSSQL.Open("select " + (FieldList == "" ? "*" : FieldList) + " from [" + TableName + "]" + (Condition == "" ? "" : " where " + Condition) + (Order == "" ? "" : " order by " + Order));
+            }
+
+            /// <summary>
+            /// 读取表
+            /// </summary>
+            /// <param name="FieldList"></param>
+            /// <param name="Condition"></param>
+            /// <param name="Order"></param>
+            /// <returns></returns>
+            public SqlDataReader Read(string FieldList, string Condition, string Order)
+            {
+                FieldList = FieldList.Trim();
+                Condition = Condition.Trim();
+                Order = Order.Trim();
+
+                return MSSQL.Read("select " + (FieldList == "" ? "*" : FieldList) + " from [" + TableName + "]" + (Condition == "" ? "" : " where " + Condition) + (Order == "" ? "" : " order by " + Order), false);
+            }
+
+            /// <summary>
+            /// 读取表并返回到调用者
+            /// </summary>
+            /// <param name="FieldList"></param>
+            /// <param name="Condition"></param>
+            /// <param name="Order"></param>
+            /// <returns></returns>
+            public SqlDataReader ReadAndSend(string FieldList, string Condition, string Order)
+            {
+                FieldList = FieldList.Trim();
+                Condition = Condition.Trim();
+                Order = Order.Trim();
+
+                return MSSQL.Read("select " + (FieldList == "" ? "*" : FieldList) + " from [" + TableName + "]" + (Condition == "" ? "" : " where " + Condition) + (Order == "" ? "" : " order by " + Order), true);
+            }
+
+            /// <summary>
+            /// 获取表记录数
+            /// </summary>
+            /// <param name="conn"></param>
+            /// <param name="Condition"></param>
+            /// <returns></returns>
+            public long GetCount(string Condition)
+            {
+                Condition = Condition.Trim();
+
+                object Result = MSSQL.ExecuteScalar("select count(*) from [" + TableName + "]" + (Condition == "" ? "" : " where " + Condition));
+
+                if (Result == null)
+                {
+                    return 0;
+                }
+
+                return long.Parse(Result.ToString());
+            }
+
+            /// <summary>
+            /// 增加记录
+            /// </summary>
+            /// <returns>返回 < 0 表示失败，返回 0 表示成功，无自增值，> 0 表示自增值</returns>
+            public long Insert()
+            {
+                if (Fields.Count < 1)
+                {
+                    return -101;
+                }
+
+                string InsertFieldsList = "";
+                string InsertValuesList = "";
+                MSSQL.Parameter[] Parameters = new MSSQL.Parameter[Fields.Count];
+
+                for (int i = 0; i < Fields.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        InsertFieldsList += ", ";
+                        InsertValuesList += ", ";
+                    }
+
+                    InsertFieldsList += "[" + Fields[i].Name + "]";
+                    InsertValuesList += "@" + Fields[i].CanonicalIdentifierName;
+
+                    Parameters[i] = new MSSQL.Parameter(Fields[i].CanonicalIdentifierName, Fields[i].DbType, 0, ParameterDirection.Input, Fields[i].Value);
+                }
+
+                string CommandText = "insert into [" + TableName + "] (" + InsertFieldsList + ") values (" + InsertValuesList + "); select isnull(cast(scope_identity() as bigint), -99999999)";
+
+                object objResult = MSSQL.ExecuteScalar(CommandText, Parameters);
+
+                if (objResult == null)
+                {
+                    return -102;
+                }
+
+                Fields.Clear();
+
+                long Result = (long)objResult;
+
+                if (Result == -99999999)
+                {
+                    return 0;
+                }
+
+                return Result;
+            }
+
+            /// <summary>
+            /// 删除表记录
+            /// </summary>
+            /// <param name="Condition"></param>
+            /// <returns></returns>
+            public long Delete(string Condition)
+            {
+                Condition = Condition.Trim();
+
+                object objResult = MSSQL.ExecuteScalar("delete from [" + TableName + "]" + (Condition == "" ? "" : " where " + Condition) + "; select isnull(cast(rowcount_big() as bigint), -99999999)");
+
+                if (objResult == null)
+                {
+                    return -102;
+                }
+
+                Fields.Clear();
+
+                long Result = (long)objResult;
+
+                if (Result == -99999999)
+                {
+                    return 0;
+                }
+
+                return Result;
+            }
+
+            /// <summary>
+            /// 更新表
+            /// </summary>
+            /// <param name="Condition"></param>
+            /// <returns></returns>
+            public long Update(string Condition)
+            {
+                if (Fields.Count < 1)
+                {
+                    return -101;
+                }
+
+                Condition = Condition.Trim();
+
+                string CommandText = "update [" + TableName + "] set ";
+                MSSQL.Parameter[] Parameters = new MSSQL.Parameter[Fields.Count];
+
+                for (int i = 0; i < Fields.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        CommandText += ", ";
+                    }
+
+                    CommandText += "[" + Fields[i].Name + "] = @" + Fields[i].CanonicalIdentifierName;
+
+                    Parameters[i] = new MSSQL.Parameter(Fields[i].CanonicalIdentifierName, Fields[i].DbType, 0, ParameterDirection.Input, Fields[i].Value);
+                }
+
+                if (!String.IsNullOrEmpty(Condition))
+                {
+                    CommandText += " where " + Condition;
+                }
+
+                CommandText += "; select isnull(cast(rowcount_big() as bigint), -99999999)";
+
+                object objResult = MSSQL.ExecuteScalar(CommandText, Parameters);
+
+                if (objResult == null)
+                {
+                    return -102;
+                }
+
+                Fields.Clear();
+
+                long Result = (long)objResult;
+
+                if (Result == -99999999)
+                {
+                    return 0;
+                }
+
+                return Result;
+            }
+        }
+
+        /// <summary>
+        /// 视图的基类
+        /// </summary>
+        public class ViewBase
+        {
+            public string ViewName = "";
+
+            /// <summary>
+            /// 打开视图
+            /// </summary>
+            /// <param name="conn"></param>
+            /// <param name="FieldList"></param>
+            /// <param name="Condition"></param>
+            /// <param name="Order"></param>
+            /// <returns></returns>
+            public DataTable Open(string FieldList, string Condition, string Order)
+            {
+                FieldList = FieldList.Trim();
+                Condition = Condition.Trim();
+                Order = Order.Trim();
+
+                return MSSQL.Open("select " + (FieldList == "" ? "*" : FieldList) + " from [" + ViewName + "]" + (Condition == "" ? "" : " where " + Condition) + (Order == "" ? "" : " order by " + Order));
+            }
+
+            /// <summary>
+            /// 读取视图
+            /// </summary>
+            /// <param name="FieldList"></param>
+            /// <param name="Condition"></param>
+            /// <param name="Order"></param>
+            /// <returns></returns>
+            public SqlDataReader Read(string FieldList, string Condition, string Order)
+            {
+                FieldList = FieldList.Trim();
+                Condition = Condition.Trim();
+                Order = Order.Trim();
+
+                return MSSQL.Read("select " + (FieldList == "" ? "*" : FieldList) + " from [" + ViewName + "]" + (Condition == "" ? "" : " where " + Condition) + (Order == "" ? "" : " order by " + Order), false);
+            }
+
+            /// <summary>
+            /// 读取视图并返回到调用者
+            /// </summary>
+            /// <param name="FieldList"></param>
+            /// <param name="Condition"></param>
+            /// <param name="Order"></param>
+            /// <returns></returns>
+            public SqlDataReader ReadAndSend(string FieldList, string Condition, string Order)
+            {
+                FieldList = FieldList.Trim();
+                Condition = Condition.Trim();
+                Order = Order.Trim();
+
+                return MSSQL.Read("select " + (FieldList == "" ? "*" : FieldList) + " from [" + ViewName + "]" + (Condition == "" ? "" : " where " + Condition) + (Order == "" ? "" : " order by " + Order), true);
+            }
+
+            /// <summary>
+            /// 获取视图记录数
+            /// </summary>
+            /// <param name="Condition"></param>
+            /// <returns></returns>
+            public long GetCount(string Condition)
+            {
+                Condition = Condition.Trim();
+
+                object Result = MSSQL.ExecuteScalar("select count(*) from [" + ViewName + "]" + (Condition == "" ? "" : " where " + Condition));
+
+                if (Result == null)
+                {
+                    return 0;
+                }
+
+                return long.Parse(Result.ToString());
+            }
+        }
+    }
+
+    /// <summary>
+    /// 持久化
+    /// </summary>
+    public class DAL
+    {
+        /// <summary>
+        /// 表
+        /// </summary>
+        public class Tables
+        {
+/*[$Replace_Tables$]*/        }
+
+        /// <summary>
+        /// 视图
+        /// </summary>
+        public class Views
+        {
+/*[$Replace_Views$]*/        }
+    }
+}
