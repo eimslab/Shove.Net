@@ -30,8 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LitJson" Version="0.16.0" />
-    <PackageReference Include="LumiSoft.Net.dll" Version="4.5.7150.28939" />
     <PackageReference Include="MySql.Data" Version="8.0.19" />
+    <PackageReference Include="New.LumiSoft.Net" Version="1.0.0" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
     <PackageReference Include="NPOI" Version="2.5.1" />
     <PackageReference Include="PinYinConverterCore" Version="1.0.2" />
