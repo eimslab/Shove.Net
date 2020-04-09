@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -34,7 +34,7 @@ namespace Shove._Net.TCP
 
             private ReceiveHandler Delegate_ReceiveHandler = null;
 
-            private Utility utility = new Utility();
+            private Utility utility = null;
 
             /// <summary>
             /// 构造
@@ -42,12 +42,15 @@ namespace Shove._Net.TCP
             /// <param name="hostName"></param>
             /// <param name="ip"></param>
             /// <param name="port"></param>
+            /// <param name="desKey"></param>
             /// <param name="delegate_ReceiveHandler"></param>
-            public Server(string hostName, string ip, int port, ReceiveHandler delegate_ReceiveHandler)
+            public Server(string hostName, string ip, int port, string desKey, ReceiveHandler delegate_ReceiveHandler)
             {
                 HostName = hostName;
                 IP = ip;
                 Port = port;
+
+                utility = new Utility(desKey);
 
                 Delegate_ReceiveHandler = delegate_ReceiveHandler;
 

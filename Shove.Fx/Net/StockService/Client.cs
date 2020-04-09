@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -24,17 +24,20 @@ namespace Shove._Net.TCP
 
             private TCP_Client tcpClient = new TCP_Client();
 
-            private Utility utility = new Utility();
+            private Utility utility = null;
 
             /// <summary>
             /// 构造
             /// </summary>
             /// <param name="hostNameOrIP"></param>
             /// <param name="port"></param>
-            public Client(string hostNameOrIP, int port)
+            /// <param name="desKey"></param>
+            public Client(string hostNameOrIP, int port, string desKey)
             {
                 HostNameOrIP = hostNameOrIP;
                 Port = port;
+
+                utility = new Utility(desKey);
             }
 
             /// <summary>

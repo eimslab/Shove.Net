@@ -1,13 +1,14 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29920.165
+MinimumVisualStudioVersion = 15.0.0.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A5FBEF6E-9922-4132-B1CE-AB38A95A22E9}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shove", "Shove\Shove.csproj", "{670165E5-08FF-4CF9-8D3B-D302F87F4E12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shove", "Shove\Shove.csproj", "{670165E5-08FF-4CF9-8D3B-D302F87F4E12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shove.Fx", "Shove.Fx\Shove.Fx.csproj", "{2C06FF39-1352-4E30-BABC-3BA1ACB0B434}"
 EndProject
@@ -25,6 +26,12 @@ Global
 		{2C06FF39-1352-4E30-BABC-3BA1ACB0B434}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C06FF39-1352-4E30-BABC-3BA1ACB0B434}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C06FF39-1352-4E30-BABC-3BA1ACB0B434}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9F62E05B-E8B2-4EF2-859A-5B9576D9937A}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		version = 0.1.1

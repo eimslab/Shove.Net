@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography;
@@ -14,7 +14,12 @@ namespace Shove._Net.TCP
     {
         internal class Utility
         {
-            private const string DesKey = "Q56GtyNkop97Ht334Ttyurfg";
+            private string DesKey = "Q56GtyNkop97Ht334Ttyurfg";
+
+            public Utility(string desKey)
+            {
+                DesKey = desKey;
+            }
 
             internal byte[] ReceiveData(SmartStream TcpStream)
             {

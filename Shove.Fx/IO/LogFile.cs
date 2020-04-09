@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Text;
 
 namespace Shove._IO
 {
