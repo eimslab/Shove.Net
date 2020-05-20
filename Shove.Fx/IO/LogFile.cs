@@ -35,6 +35,7 @@ namespace Shove._IO
         private string pathName;
         private FileGranularity granularity;
         private bool writeTimeInfo;
+        private int writeType;
         private static object _lock = new object();
 
         /// <summary>
@@ -43,7 +44,8 @@ namespace Shove._IO
         /// <param name="pathname">相对于网站、应用程序根目录 App_Log 目录的相对路径，如： System， 就相当于 ~/App_Log/System/、 应用程序根\App_Log\System\</param>
         /// <param name="granularity">日志文件分割的颗粒度，可选 year, month, day, hour</param>
         /// <param name="writeTimeInfo">日志内容是否附加时间刻度信息</param>
-        public Log(string pathname, FileGranularity granularity = FileGranularity.day, bool writeTimeInfo = true)
+        /// <param name="writeType">0 表示web进程写入，1 表示socket接口写入</param>
+        public Log(string pathname, FileGranularity granularity = FileGranularity.day, bool writeTimeInfo = true, int writeType = 0)
         {
             if (string.IsNullOrEmpty(pathname))
             {
@@ -53,6 +55,7 @@ namespace Shove._IO
             this.pathName = System.AppDomain.CurrentDomain.BaseDirectory + "App_Log/" + pathname;
             this.granularity = granularity;
             this.writeTimeInfo = writeTimeInfo;
+            this.writeType = writeType;
 
             if (!Directory.Exists(this.pathName))
             {
@@ -95,18 +98,29 @@ namespace Shove._IO
 
             lock (_lock)
             {
-                using (FileStream fs = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Write))
+                switch (writeType)
                 {
-                    StreamWriter writer = new StreamWriter(fs, System.Text.Encoding.GetEncoding("GBK"));
+                    case 0:
+                        using (FileStream fs = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Write))
+                        {
+                            StreamWriter writer = new StreamWriter(fs, System.Text.Encoding.GetEncoding("GBK"));
 
-                    try
-                    {
-                        writer.WriteLine(message);
-                    }
-                    catch { }
+                            try
+                            {
+                                writer.WriteLine(message);
+                            }
+                            catch { }
 
-                    writer.Close();
-                    writer.Dispose();
+                            writer.Close();
+                            writer.Dispose();
+                        }
+                        break;
+                    case 1:
+                        //调接口写入日志
+
+                        break;
+                    default:
+                        break;
                 }
             }
         }

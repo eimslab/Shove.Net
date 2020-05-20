@@ -2,6 +2,7 @@
 using System.Drawing;
 using ZXing;
 using ZXing.Common;
+using ZXing.QrCode.Internal;
 
 namespace Shove.InformationCode
 {
@@ -68,24 +69,21 @@ namespace Shove.InformationCode
         /// <returns></returns>
         public static Bitmap CreateCode(string input, BarcodeFormat fromat, int canvasWidth, int canvasHeight, System.Drawing.Imaging.ImageFormat imageFormat, string logoImageFileName)
         {
-            System.Collections.Hashtable hints = new System.Collections.Hashtable();
-            hints.Add(EncodeHintType.CHARACTER_SET, "utf-8");
-
-            BitMatrix byteMatrix = new MultiFormatWriter().encode(input, fromat, canvasWidth, canvasHeight, (System.Collections.Generic.IDictionary<ZXing.EncodeHintType, object>)hints);
-
-            int x, y;
-            int width = byteMatrix.Width;
-            int height = byteMatrix.Height;
-
-            Bitmap bmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-            for (x = 0; x < width; x++)
+            var barcodeWriter = new BarcodeWriter<Bitmap>
             {
-                for (y = 0; y < height; y++)
+                Format = fromat,
+                Options = new EncodingOptions
                 {
-                    //[shove] bmap.SetPixel(x, y, byteMatrix.get_Renamed(x, y) != -1 ? ColorTranslator.FromHtml("0xFF000000") : ColorTranslator.FromHtml("0xFFFFFFFF"));
+                    Height = canvasHeight,
+                    Width = canvasWidth,
+                    Margin = 0
                 }
-            }
+            };
+
+            barcodeWriter.Options.Hints.Add(EncodeHintType.CHARACTER_SET, "UTF-8");
+            barcodeWriter.Options.Hints.Add(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+
+            var bmap = barcodeWriter.Write(input);
 
             if (string.IsNullOrEmpty(logoImageFileName.Trim()) || (!System.IO.File.Exists(logoImageFileName)))
             {
@@ -105,8 +103,8 @@ namespace Shove.InformationCode
             //g.Clear(System.Drawing.Color.Transparent);
 
             // 计算 Logo 的范围
-            x = (width - logo.Width) / 2;
-            y = (height - logo.Height) / 2;
+            int x = (canvasWidth - logo.Width) / 2;
+            int y = (canvasHeight - logo.Height) / 2;
 
             //在指定位置并且按指定大小绘制原图片的指定部分
             g.DrawImage(logo, new System.Drawing.Rectangle(x, y, logo.Width, logo.Height), 0, 0, logo.Width, logo.Height, System.Drawing.GraphicsUnit.Pixel);
