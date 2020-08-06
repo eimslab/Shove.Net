@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net4.6.1;net4.7.2</TargetFrameworks>
     <PackOnBuild>true</PackOnBuild>
-    <PackageVersion>0.1.1</PackageVersion>
+    <PackageVersion>0.1.2</PackageVersion>
     <Authors>EimsLab</Authors>
     <PackageId>Shove.Net</PackageId>
     <Description>A DotNet Standard extension library is designed to simplify the repetitive, mechanical little work of daily application development.</Description>
-    <ReleaseVersion>0.1.1</ReleaseVersion>
+    <ReleaseVersion>0.1.2</ReleaseVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -17,6 +17,26 @@
     <Compile Remove="Class1.cs" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://icp.shovesoft.com/Gateway.asmx?wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\com_shovesoft_icp</RelPath>
+      <UpdateFromURL>http://icp.shovesoft.com/Gateway.asmx?wsdl</UpdateFromURL>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://sms.gateway.i3km.com/sms_gateway.asmx?wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\I3kmSMS_GatewayService</RelPath>
+      <UpdateFromURL>http://sms.gateway.i3km.com/sms_gateway.asmx?wsdl</UpdateFromURL>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://icp.shovesoft.com/Gateway.asmx?wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\com_shovesoft_icp</RelPath>
+      <UpdateFromURL>http://icp.shovesoft.com/Gateway.asmx?wsdl</UpdateFromURL>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://sms.gateway.i3km.com/sms_gateway.asmx?wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\I3kmSMS_GatewayService</RelPath>
+      <UpdateFromURL>http://sms.gateway.i3km.com/sms_gateway.asmx?wsdl</UpdateFromURL>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://icp.shovesoft.com/Gateway.asmx?wsdl">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\com_shovesoft_icp</RelPath>
