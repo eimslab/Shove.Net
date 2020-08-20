@@ -443,9 +443,9 @@
     <Compile Include="Net\IIS\IISWebServer.cs" />
     <Compile Include="Net\IIS\IISWebVirtualDir.cs" />
     <Compile Include="Net\IIS\IISWebVirtualDirCollection.cs" />
-    <Compile Include="Net\StockService\Client.cs" />
-    <Compile Include="Net\StockService\Server.cs" />
-    <Compile Include="Net\StockService\Utility.cs" />
+    <Compile Include="Net\SocketService\Client.cs" />
+    <Compile Include="Net\SocketService\Server.cs" />
+    <Compile Include="Net\SocketService\Utility.cs" />
     <Compile Include="Gateways\OnlinePay\Alipay\Alipay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
