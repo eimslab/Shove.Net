@@ -29,3 +29,4 @@
 12. Generation and Reading of Two-Dimensional Code and Bar Code.
 13. Powerful and Universal Character Set Detection Function.
 14. Easy-to-use wrapper for other details.
+15. Other.
