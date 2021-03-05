@@ -108,6 +108,6 @@
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.VisualBasic" Version="10.4.0-preview.18571.3" />
-    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="log4net" Version="2.0.10" />
   </ItemGroup>
 </Project>
